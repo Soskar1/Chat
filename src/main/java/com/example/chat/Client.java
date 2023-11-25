@@ -7,13 +7,14 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
+public class Client extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+        FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource("chat-log-in.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        stage.setTitle("Chat application");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
