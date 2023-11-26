@@ -15,11 +15,17 @@ public class ChatLogInController {
     @FXML private TextField nicknameTextField;
 
     public void connect() throws IOException {
-        if (nicknameTextField.getText().isEmpty())
+        String nickname = nicknameTextField.getText();
+        if (nickname.isEmpty())
             return;
 
         Socket socket = new Socket("localhost", 7777);
-        User user = new User(nicknameTextField.getText(), socket);
+
+        PrintWriter out = new PrintWriter(socket.getOutputStream());
+        out.println(nickname);
+        out.close();
+
+        User user = new User(nickname, socket);
         enterMessenger(user);
     }
 

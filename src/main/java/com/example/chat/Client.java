@@ -12,7 +12,7 @@ public class Client extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource("chat-log-in.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Chat application");
+        stage.setTitle("Log In");
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();

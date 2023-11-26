@@ -1,12 +1,16 @@
 package com.example.chat.serverside;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class Server {
-    private final ArrayList<ClientHandler> connections = new ArrayList<>();
+    private final Hashtable<String, ClientHandler> clients = new Hashtable<>();
+    private final ArrayList<Room> rooms = new ArrayList<>();
     private final ServerSocket server;
 
     public Server() throws IOException {
@@ -18,11 +22,14 @@ public class Server {
         try {
             while (!server.isClosed()) {
                 Socket client = server.accept();
-                System.out.println("A new client has connected!");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                String nickname = reader.readLine();
 
-//                ClientHandler clientConnection = new ClientHandler(client);
-//                connections.add(clientConnection);
-//
+                System.out.println(nickname + " has been connected!");
+
+                ClientHandler clientConnection = new ClientHandler(client);
+                clients.put(nickname, clientConnection);
+
 //                Thread thread = new Thread(clientConnection);
 //                thread.start();
             }
