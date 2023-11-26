@@ -1,6 +1,7 @@
 package com.example.chat;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class User {
@@ -19,5 +20,13 @@ public class User {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+        return socket.getOutputStream();
     }
 }

@@ -29,9 +29,6 @@ public class Server {
 
                 ClientHandler clientConnection = new ClientHandler(client);
                 clients.put(nickname, clientConnection);
-
-//                Thread thread = new Thread(clientConnection);
-//                thread.start();
             }
         } catch (IOException e) {
             close();

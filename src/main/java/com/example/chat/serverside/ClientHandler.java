@@ -20,7 +20,9 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+        while (socket.isConnected()) {
 
+        }
     }
 
     private void close() {
