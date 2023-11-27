@@ -1,4 +1,4 @@
-package com.example.chat.serverside;
+package com.example.chat.network;
 
 import com.example.chat.Settings;
 
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Server {
     private static final Hashtable<String, ClientHandler> clients = new Hashtable<>();
-    private final ArrayList<Room> rooms = new ArrayList<>();
+    private static final ArrayList<Room> rooms = new ArrayList<>();
     private final ServerSocket server;
 
     public Server() throws IOException {
@@ -35,6 +35,8 @@ public class Server {
     }
 
     public void close() {
+        System.out.println("Closing the server");
+
         try {
             if (server != null) {
                 server.close();
@@ -44,12 +46,20 @@ public class Server {
         }
     }
 
+    public synchronized static void addRoom(Room room) {
+        rooms.add(room);
+    }
+
     public static Set<String> getUserNicknames() {
         return clients.keySet();
     }
 
-    public static void addUser(String nickname, ClientHandler handler) {
+    public synchronized static void addUser(String nickname, ClientHandler handler) {
         clients.put(nickname, handler);
+    }
+
+    public static ClientHandler getClient(String nickname) {
+        return clients.get(nickname);
     }
 
     public static void main(String[] args) throws IOException {

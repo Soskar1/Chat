@@ -1,9 +1,12 @@
-package com.example.chat.serverside;
+package com.example.chat.network;
 
 import com.example.chat.User;
+import com.example.chat.network.requests.CreateRoomRequest;
+import com.example.chat.network.requests.GetUsersRequest;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class ClientHandler implements Runnable {
@@ -34,22 +37,35 @@ public class ClientHandler implements Runnable {
                 } else if (object instanceof GetUsersRequest request) {
                     System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
 
-                    var nicknames = Server.getUserNicknames();
-                    out.writeObject(nicknames.size() - 1);
-                    for (String nickname : nicknames)
-                        if (!Objects.equals(nickname, request.getSender()))
-                            out.writeObject(nickname);
+                    var nicknames = Server.getUserNicknames().toArray();
+                    request.nicknames = new ArrayList<>();
 
-                    out.flush();
+                    for (Object o : nicknames) {
+                        String nickname = (String) o;
+
+                        if (!Objects.equals(nickname, request.getSender()))
+                            request.nicknames.add(nickname);
+                    }
+
+                    sendToClient(request);
                 } else if (object instanceof CreateRoomRequest request) {
                     System.out.println(user.getNickname() + ": CREATE_ROOM_REQUEST");
 
+                    Server.addRoom(request.room);
 
+                    ArrayList<String> users = request.room.getUsers();
+                    for (String nickname : users)
+                        Server.getClient(nickname).sendToClient(request);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 user.disconnect();
             }
         }
+    }
+
+    public synchronized void sendToClient(Object object) throws IOException {
+        out.writeObject(object);
+        out.flush();
     }
 }

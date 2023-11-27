@@ -1,6 +1,6 @@
 package com.example.chat;
 
-import com.example.chat.serverside.Client;
+import com.example.chat.network.Client;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,7 +35,7 @@ public class LogInController {
         Stage stage = new Stage();
         Scene scene = new Scene(root);
 
-        stage.setTitle("Messenger");
+        stage.setTitle("Messenger. " + nicknameTextField.getText());
         stage.setScene(scene);
 
         stage.setOnHidden(e -> {

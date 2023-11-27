@@ -1,9 +1,9 @@
 package com.example.chat;
 
-import com.example.chat.serverside.Client;
-import com.example.chat.serverside.CreateRoomRequest;
-import com.example.chat.serverside.GetUsersRequest;
-import com.example.chat.serverside.Room;
+import com.example.chat.network.Client;
+import com.example.chat.network.requests.CreateRoomRequest;
+import com.example.chat.network.requests.GetUsersRequest;
+import com.example.chat.network.Room;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -95,12 +95,10 @@ public class RoomCreatorController implements Initializable {
     private void getUsersFromServer() throws IOException, ClassNotFoundException, InterruptedException {
         GetUsersRequest request = new GetUsersRequest(Client.getNickname());
         Client.sendDataToServer(request);
+    }
 
-        RequestResponse response = new RequestResponse();
-        Thread thread = new Thread(response);
-        thread.start();
-        thread.join();
-        allUsersListView.getItems().addAll(response.nicknames);
+    public void setUsers(ArrayList<String> nicknames) {
+        allUsersListView.getItems().addAll(nicknames);
     }
 
     private void disconnect() {
@@ -108,24 +106,6 @@ public class RoomCreatorController implements Initializable {
             Client.disconnect();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    class RequestResponse implements Runnable {
-        public String[] nicknames;
-
-        @Override
-        public void run() {
-            int size = 0;
-            try {
-                size = (int) Client.getDataFromServer();
-                nicknames = new String[size];
-                for (int i = 0; i < size; ++i) {
-                    nicknames[i] = (String)Client.getDataFromServer();
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }

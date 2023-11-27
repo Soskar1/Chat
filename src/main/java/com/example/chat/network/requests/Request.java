@@ -1,4 +1,4 @@
-package com.example.chat.serverside;
+package com.example.chat.network.requests;
 
 import java.io.Serializable;
 
