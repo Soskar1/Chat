@@ -1,6 +1,8 @@
 package com.example.chat.serverside;
 
-public class Request {
+import java.io.Serializable;
+
+public class Request implements Serializable {
     private final String sender;
 
     public Request(String sender) {

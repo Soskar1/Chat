@@ -11,8 +11,9 @@ public class ClientHandler implements Runnable {
     private final ObjectInputStream in;
 
     public ClientHandler(Socket socket) throws IOException, ClassNotFoundException {
-        out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
+        out = new ObjectOutputStream(socket.getOutputStream());
+        user = new User("test", socket);
 
         String nickname = (String) in.readObject();
         user = new User(nickname, socket);
@@ -23,24 +24,24 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        while (user.isConnected()) {
-            //try {
-            //    Object object = in.readObject();
-//
-            //    if (object instanceof String) {
-            //        // message
-            //    } else if (object instanceof GetAllUsersRequest) {
-            //        //GetAllUsersRequest request = (GetAllUsersRequest) object;
-            //        System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
-            //        String[] userNicknames = server.getUserNicknames();
-//
-            //        out.writeObject(userNicknames);
-            //        out.flush();
-            //    }
-//
-            //} catch (IOException | ClassNotFoundException e) {
-            //    throw new RuntimeException(e);
-            //}
+        while (user.isConnected() && !user.isClosed()) {
+            try {
+                Object object = in.readObject();
+
+                if (object instanceof String) {
+                    // message
+                } else if (object instanceof GetAllUsersRequest) {
+                    //GetAllUsersRequest request = (GetAllUsersRequest) object;
+                    //System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
+                    //String[] userNicknames = Server.getUserNicknames();
+
+                    //out.writeObject(userNicknames);
+                    //out.flush();
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+                user.disconnect();
+            }
         }
     }
 }

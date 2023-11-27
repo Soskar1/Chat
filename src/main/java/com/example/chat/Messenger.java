@@ -7,10 +7,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class Client extends Application {
+public class Messenger extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource("chat-log-in.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Messenger.class.getResource("chat-log-in.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Log In");
         stage.setScene(scene);
