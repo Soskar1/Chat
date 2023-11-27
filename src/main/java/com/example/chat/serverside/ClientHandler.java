@@ -33,6 +33,7 @@ public class ClientHandler implements Runnable {
                     // message
                 } else if (object instanceof GetUsersRequest request) {
                     System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
+
                     var nicknames = Server.getUserNicknames();
                     out.writeObject(nicknames.size() - 1);
                     for (String nickname : nicknames)
@@ -40,6 +41,10 @@ public class ClientHandler implements Runnable {
                             out.writeObject(nickname);
 
                     out.flush();
+                } else if (object instanceof CreateRoomRequest request) {
+                    System.out.println(user.getNickname() + ": CREATE_ROOM_REQUEST");
+
+
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();

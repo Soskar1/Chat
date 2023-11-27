@@ -1,7 +1,6 @@
 package com.example.chat;
 
 import com.example.chat.serverside.Client;
-import com.example.chat.serverside.SetUsernameRequest;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,15 +23,12 @@ public class LogInController {
         Socket socket = new Socket(Settings.IP, Settings.PORT);
         User user = new User(nickname, socket);
         Client.setUser(user);
-
-        //SetUsernameRequest request = new SetUsernameRequest(user.getNickname(), "new_nickname34");
         Client.sendDataToServer(nickname);
-        //Client.sendDataToServer(request);
 
-        enterMessenger(user);
+        enterMessenger();
     }
 
-    private void enterMessenger(User user) throws IOException {
+    private void enterMessenger() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Messenger.class.getResource("messenger.fxml"));
         Parent root = fxmlLoader.load();
 
