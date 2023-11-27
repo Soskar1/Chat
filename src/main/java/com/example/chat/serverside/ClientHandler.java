@@ -4,6 +4,7 @@ import com.example.chat.User;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Objects;
 
 public class ClientHandler implements Runnable {
     private User user;
@@ -30,13 +31,15 @@ public class ClientHandler implements Runnable {
 
                 if (object instanceof String) {
                     // message
-                } else if (object instanceof GetAllUsersRequest) {
-                    //GetAllUsersRequest request = (GetAllUsersRequest) object;
-                    //System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
-                    //String[] userNicknames = Server.getUserNicknames();
+                } else if (object instanceof GetUsersRequest request) {
+                    System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
+                    var nicknames = Server.getUserNicknames();
+                    out.writeObject(nicknames.size() - 1);
+                    for (String nickname : nicknames)
+                        if (!Objects.equals(nickname, request.getSender()))
+                            out.writeObject(nickname);
 
-                    //out.writeObject(userNicknames);
-                    //out.flush();
+                    out.flush();
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();

@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Set;
 
 public class Server {
     private static final Hashtable<String, ClientHandler> clients = new Hashtable<>();
@@ -43,8 +44,8 @@ public class Server {
         }
     }
 
-    public static String[] getUserNicknames() {
-        return (String[]) clients.keySet().toArray();
+    public static Set<String> getUserNicknames() {
+        return clients.keySet();
     }
 
     public static void addUser(String nickname, ClientHandler handler) {
