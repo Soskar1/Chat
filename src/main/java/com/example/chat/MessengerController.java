@@ -6,12 +6,14 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 public class MessengerController {
-    private User user;
+    private static User user;
 
-    public void initialize(User user) {
-        this.user = user;
+    public void initialize(User user) throws IOException {
+        MessengerController.user = user;
+        sendDataToServer(user.getNickname());
     }
 
     public void createRoom() throws IOException {
@@ -28,5 +30,16 @@ public class MessengerController {
         stage.setScene(scene);
         stage.show();
         stage.setResizable(false);
+    }
+
+    public static void sendDataToServer(Object data) throws IOException {
+        ObjectOutputStream out = new ObjectOutputStream(user.getOutputStream());
+        out.writeObject(data);
+        out.flush();
+        out.close();
+    }
+
+    public void shutdown() {
+        user.disconnect();
     }
 }

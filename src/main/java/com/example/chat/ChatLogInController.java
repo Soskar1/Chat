@@ -1,5 +1,6 @@
 package com.example.chat;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -8,7 +9,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ChatLogInController {
@@ -19,11 +19,7 @@ public class ChatLogInController {
         if (nickname.isEmpty())
             return;
 
-        Socket socket = new Socket("localhost", 7777);
-
-        PrintWriter out = new PrintWriter(socket.getOutputStream());
-        out.println(nickname);
-        out.close();
+        Socket socket = new Socket(Settings.IP, Settings.PORT);
 
         User user = new User(nickname, socket);
         enterMessenger(user);
@@ -41,6 +37,12 @@ public class ChatLogInController {
 
         stage.setTitle("Messenger");
         stage.setScene(scene);
+
+        stage.setOnHidden(e -> {
+            messenger.shutdown();
+            Platform.exit();
+        });
+
         stage.show();
         stage.setResizable(false);
 
