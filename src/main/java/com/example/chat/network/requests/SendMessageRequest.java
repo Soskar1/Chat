@@ -6,9 +6,8 @@ public class SendMessageRequest extends Request {
     public String message;
     public Room room;
 
-    public SendMessageRequest(String sender, Room room, String message) {
-        super(sender);
-        this.message = sender + ": " + message + "\n";
+    public SendMessageRequest(Room room, String message) {
+        this.message = getSender() + ": " + message + "\n";
         this.room = room;
     }
 }

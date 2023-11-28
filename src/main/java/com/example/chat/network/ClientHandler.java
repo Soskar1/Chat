@@ -1,10 +1,7 @@
 package com.example.chat.network;
 
 import com.example.chat.User;
-import com.example.chat.network.requests.CreateRoomRequest;
-import com.example.chat.network.requests.GetRoomContentRequest;
-import com.example.chat.network.requests.GetUsersRequest;
-import com.example.chat.network.requests.SendMessageRequest;
+import com.example.chat.network.requests.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -36,20 +33,19 @@ public class ClientHandler implements Runnable {
 
                 if (object instanceof SendMessageRequest request) {
                     System.out.println(user.getNickname() + ": SEND_MESSAGE_REQUEST");
-                    Server.addContentToRoom(request.room, request.message);
+                    Database.appendRoomContent(request.room, request.message);
 
                     ArrayList<String> users = request.room.getUsers();
                     for (String nickname : users)
-                        Server.getClient(nickname).sendToClient(request);
+                        if (Server.clientIsConnected(nickname))
+                            Server.getClient(nickname).sendToClient(request);
                 } else if (object instanceof GetUsersRequest request) {
                     System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
 
-                    var nicknames = Server.getUserNicknames().toArray();
+                    var nicknames = Database.getUsers();
                     request.nicknames = new ArrayList<>();
 
-                    for (Object o : nicknames) {
-                        String nickname = (String) o;
-
+                    for (String nickname : nicknames) {
                         if (!Objects.equals(nickname, request.getSender()))
                             request.nicknames.add(nickname);
                     }
@@ -58,20 +54,36 @@ public class ClientHandler implements Runnable {
                 } else if (object instanceof CreateRoomRequest request) {
                     System.out.println(user.getNickname() + ": CREATE_ROOM_REQUEST");
 
-                    Server.addRoom(request.room);
+                    Database.addRoom(request.room);
 
                     ArrayList<String> users = request.room.getUsers();
                     for (String nickname : users)
-                        Server.getClient(nickname).sendToClient(request);
+                        if (Server.clientIsConnected(nickname))
+                            Server.getClient(nickname).sendToClient(request);
                 } else if (object instanceof GetRoomContentRequest request) {
                     System.out.println(user.getNickname() + ": GET_ROOM_CONTENT_REQUEST");
 
-                    request.content = Server.getRoomContent(request.room);
+                    request.content = Database.getRoomContent(request.room);
+                    sendToClient(request);
+                } else if (object instanceof GetRoomsRequest request) {
+                    System.out.println(user.getNickname() + ": GET_ROOMS_REQUEST");
+
+                    var rooms = Database.getRooms();
+                    for (Room room : rooms) {
+                        for (String user : room.getUsers()) {
+                            if (Objects.equals(user, request.getSender())) {
+                                request.rooms.add(room);
+                                break;
+                            }
+                        }
+                    }
+
                     sendToClient(request);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 user.disconnect();
+                Server.disconnectClient(user.getNickname());
             }
         }
     }

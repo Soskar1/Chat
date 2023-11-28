@@ -75,7 +75,7 @@ public class RoomCreatorController implements Initializable {
         }
 
         Room room = new Room(roomName.toString(), users);
-        CreateRoomRequest request = new CreateRoomRequest(Client.getNickname(), room);
+        CreateRoomRequest request = new CreateRoomRequest(room);
         Client.sendDataToServer(request);
 
         Stage stage = (Stage) createRoomButton.getScene().getWindow();
@@ -93,7 +93,7 @@ public class RoomCreatorController implements Initializable {
     }
 
     private void getUsersFromServer() throws IOException, ClassNotFoundException, InterruptedException {
-        GetUsersRequest request = new GetUsersRequest(Client.getNickname());
+        GetUsersRequest request = new GetUsersRequest();
         Client.sendDataToServer(request);
     }
 

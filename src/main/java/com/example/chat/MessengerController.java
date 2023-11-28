@@ -3,10 +3,7 @@ package com.example.chat;
 import com.example.chat.network.Client;
 import com.example.chat.network.Room;
 import com.example.chat.network.ServerListener;
-import com.example.chat.network.requests.CreateRoomRequest;
-import com.example.chat.network.requests.GetRoomContentRequest;
-import com.example.chat.network.requests.GetUsersRequest;
-import com.example.chat.network.requests.SendMessageRequest;
+import com.example.chat.network.requests.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,6 +31,13 @@ public class MessengerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        GetRoomsRequest request = new GetRoomsRequest();
+        try {
+            Client.sendDataToServer(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         roomListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Room item, boolean empty) {
@@ -68,17 +72,18 @@ public class MessengerController implements Initializable {
 
     public void handleServerData(Object object) {
         if (object instanceof GetUsersRequest serverResponse) {
-            if (roomCreatorController != null) {
+            if (roomCreatorController != null)
                 roomCreatorController.setUsers(serverResponse.nicknames);
-            }
         } else if (object instanceof CreateRoomRequest serverResponse) {
             Platform.runLater(() -> roomListView.getItems().add(serverResponse.room));
         } else if (object instanceof GetRoomContentRequest serverResponse) {
             Platform.runLater(() -> roomContentTextArea.setText(serverResponse.content));
         } else if (object instanceof SendMessageRequest serverResponse) {
-            if (currentRoom.getId() == serverResponse.room.getId()) {
+            if (currentRoom.getId() == serverResponse.room.getId())
                 Platform.runLater(() -> roomContentTextArea.appendText(serverResponse.message));
-            }
+        } else if (object instanceof GetRoomsRequest serverResponse) {
+            if (!serverResponse.rooms.isEmpty())
+                Platform.runLater(() -> roomListView.getItems().addAll(serverResponse.rooms));
         }
     }
 
@@ -91,7 +96,7 @@ public class MessengerController implements Initializable {
         currentRoom = room;
         messageTextField.setDisable(false);
 
-        GetRoomContentRequest request = new GetRoomContentRequest(Client.getNickname(), currentRoom);
+        GetRoomContentRequest request = new GetRoomContentRequest(currentRoom);
         Client.sendDataToServer(request);
     }
 
@@ -112,7 +117,7 @@ public class MessengerController implements Initializable {
 
     private void sendMessage() throws IOException {
         String message = messageTextField.getText();
-        SendMessageRequest request = new SendMessageRequest(Client.getNickname(), currentRoom, message);
+        SendMessageRequest request = new SendMessageRequest(currentRoom, message);
         Client.sendDataToServer(request);
 
         messageTextField.clear();

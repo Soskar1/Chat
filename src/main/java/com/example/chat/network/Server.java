@@ -11,12 +11,11 @@ import java.util.Set;
 
 public class Server {
     private static final Hashtable<String, ClientHandler> clients = new Hashtable<>();
-    //private static final Hashtable<Room, StringBuilder> rooms = new Hashtable<>();
-    private static final ArrayList<StringBuilder> rooms = new ArrayList<>();
     private final ServerSocket server;
 
     public Server() throws IOException {
         server = new ServerSocket(Settings.PORT);
+        Database.load();
         System.out.println("Server started");
     }
 
@@ -47,32 +46,21 @@ public class Server {
         }
     }
 
-    public synchronized static void addRoom(Room room) {
-        //rooms.put(room, new StringBuilder());
-        room.setId(rooms.size());
-        rooms.add(new StringBuilder());
-    }
-
-    public static String getRoomContent(Room room) {
-        return rooms.get(room.getId()).toString();
-        //return rooms.get(room).toString();
-    }
-
-    public synchronized static void addContentToRoom(Room room, String content) {
-        rooms.get(room.getId()).append(content);
-        //rooms.get(room).append(content);
-    }
-
-    public static Set<String> getUserNicknames() {
-        return clients.keySet();
-    }
-
-    public synchronized static void addUser(String nickname, ClientHandler handler) {
+    public synchronized static void addUser(String nickname, ClientHandler handler) throws IOException {
         clients.put(nickname, handler);
+        Database.addUser(nickname);
     }
 
     public static ClientHandler getClient(String nickname) {
         return clients.get(nickname);
+    }
+
+    public static void disconnectClient(String nickname) {
+        clients.remove(nickname);
+    }
+
+    public static boolean clientIsConnected(String nickname) {
+        return clients.containsKey(nickname);
     }
 
     public static void main(String[] args) throws IOException {

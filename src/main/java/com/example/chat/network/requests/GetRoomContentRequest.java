@@ -6,8 +6,7 @@ public class GetRoomContentRequest extends Request {
     public final Room room;
     public String content = "";
 
-    public GetRoomContentRequest(String sender, Room room) {
-        super(sender);
+    public GetRoomContentRequest(Room room) {
         this.room = room;
     }
 }
