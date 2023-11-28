@@ -4,7 +4,9 @@ import com.example.chat.network.Client;
 import com.example.chat.network.Room;
 import com.example.chat.network.ServerListener;
 import com.example.chat.network.requests.CreateRoomRequest;
+import com.example.chat.network.requests.GetRoomContentRequest;
 import com.example.chat.network.requests.GetUsersRequest;
+import com.example.chat.network.requests.SendMessageRequest;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +15,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -20,12 +25,16 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MessengerController implements Initializable {
+    @FXML private TextArea roomContentTextArea;
+    @FXML private TextField messageTextField;
     @FXML private ListView<Room> roomListView;
     private RoomCreatorController roomCreatorController;
 
+    private Room currentRoom = null;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        roomListView.setCellFactory(param -> new ListCell<Room>() {
+        roomListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Room item, boolean empty) {
                 super.updateItem(item, empty);
@@ -34,6 +43,16 @@ public class MessengerController implements Initializable {
                     setText(null);
                 } else {
                     setText(item.getName());
+                }
+            }
+        });
+
+        messageTextField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                try {
+                    sendMessage();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -54,8 +73,26 @@ public class MessengerController implements Initializable {
             }
         } else if (object instanceof CreateRoomRequest serverResponse) {
             Platform.runLater(() -> roomListView.getItems().add(serverResponse.room));
-            System.out.println("CREATE_ROOM_REQUEST from " + serverResponse.getSender());
+        } else if (object instanceof GetRoomContentRequest serverResponse) {
+            Platform.runLater(() -> roomContentTextArea.setText(serverResponse.content));
+        } else if (object instanceof SendMessageRequest serverResponse) {
+            if (currentRoom.getId() == serverResponse.room.getId()) {
+                Platform.runLater(() -> roomContentTextArea.appendText(serverResponse.message));
+            }
         }
+    }
+
+    public void selectRoom() throws IOException {
+        Room room = roomListView.getSelectionModel().getSelectedItems().get(0);
+        if (room == null) {
+            return;
+        }
+
+        currentRoom = room;
+        messageTextField.setDisable(false);
+
+        GetRoomContentRequest request = new GetRoomContentRequest(Client.getNickname(), currentRoom);
+        Client.sendDataToServer(request);
     }
 
     public void createRoom() throws IOException {
@@ -71,5 +108,13 @@ public class MessengerController implements Initializable {
         stage.setScene(scene);
         stage.show();
         stage.setResizable(false);
+    }
+
+    private void sendMessage() throws IOException {
+        String message = messageTextField.getText();
+        SendMessageRequest request = new SendMessageRequest(Client.getNickname(), currentRoom, message);
+        Client.sendDataToServer(request);
+
+        messageTextField.clear();
     }
 }

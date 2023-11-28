@@ -1,6 +1,7 @@
 package com.example.chat.network;
 
 import com.example.chat.User;
+import com.example.chat.network.requests.Request;
 
 import java.io.IOException;
 import java.io.InputStream;

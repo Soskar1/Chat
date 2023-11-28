@@ -11,7 +11,8 @@ import java.util.Set;
 
 public class Server {
     private static final Hashtable<String, ClientHandler> clients = new Hashtable<>();
-    private static final ArrayList<Room> rooms = new ArrayList<>();
+    //private static final Hashtable<Room, StringBuilder> rooms = new Hashtable<>();
+    private static final ArrayList<StringBuilder> rooms = new ArrayList<>();
     private final ServerSocket server;
 
     public Server() throws IOException {
@@ -47,7 +48,19 @@ public class Server {
     }
 
     public synchronized static void addRoom(Room room) {
-        rooms.add(room);
+        //rooms.put(room, new StringBuilder());
+        room.setId(rooms.size());
+        rooms.add(new StringBuilder());
+    }
+
+    public static String getRoomContent(Room room) {
+        return rooms.get(room.getId()).toString();
+        //return rooms.get(room).toString();
+    }
+
+    public synchronized static void addContentToRoom(Room room, String content) {
+        rooms.get(room.getId()).append(content);
+        //rooms.get(room).append(content);
     }
 
     public static Set<String> getUserNicknames() {

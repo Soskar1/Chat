@@ -2,7 +2,9 @@ package com.example.chat.network;
 
 import com.example.chat.User;
 import com.example.chat.network.requests.CreateRoomRequest;
+import com.example.chat.network.requests.GetRoomContentRequest;
 import com.example.chat.network.requests.GetUsersRequest;
+import com.example.chat.network.requests.SendMessageRequest;
 
 import java.io.*;
 import java.net.Socket;
@@ -32,8 +34,13 @@ public class ClientHandler implements Runnable {
             try {
                 Object object = in.readObject();
 
-                if (object instanceof String) {
-                    // message
+                if (object instanceof SendMessageRequest request) {
+                    System.out.println(user.getNickname() + ": SEND_MESSAGE_REQUEST");
+                    Server.addContentToRoom(request.room, request.message);
+
+                    ArrayList<String> users = request.room.getUsers();
+                    for (String nickname : users)
+                        Server.getClient(nickname).sendToClient(request);
                 } else if (object instanceof GetUsersRequest request) {
                     System.out.println(user.getNickname() + ": ALL_USERS_REQUEST");
 
@@ -56,6 +63,11 @@ public class ClientHandler implements Runnable {
                     ArrayList<String> users = request.room.getUsers();
                     for (String nickname : users)
                         Server.getClient(nickname).sendToClient(request);
+                } else if (object instanceof GetRoomContentRequest request) {
+                    System.out.println(user.getNickname() + ": GET_ROOM_CONTENT_REQUEST");
+
+                    request.content = Server.getRoomContent(request.room);
+                    sendToClient(request);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
