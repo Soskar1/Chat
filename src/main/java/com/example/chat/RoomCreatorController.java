@@ -35,12 +35,15 @@ public class RoomCreatorController implements Initializable {
     }
 
     public void selectUser() {
-        selectedUser = allUsersListView.getSelectionModel().getSelectedItems().get(0);
+        var users = allUsersListView.getSelectionModel().getSelectedItems();
 
-        if (selectedUser != null)
+        if (!users.isEmpty()) {
+            selectedUser = users.get(0);
             enableButtons();
-        else
+        }
+        else {
             disableButtons();
+        }
     }
 
     public void addUserToInviteList() {

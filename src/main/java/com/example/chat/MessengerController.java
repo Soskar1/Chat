@@ -88,12 +88,12 @@ public class MessengerController implements Initializable {
     }
 
     public void selectRoom() throws IOException {
-        Room room = roomListView.getSelectionModel().getSelectedItems().get(0);
-        if (room == null) {
+        var rooms = roomListView.getSelectionModel().getSelectedItems();
+        if (rooms.isEmpty()) {
             return;
         }
 
-        currentRoom = room;
+        currentRoom = rooms.get(0);
         messageTextField.setDisable(false);
 
         GetRoomContentRequest request = new GetRoomContentRequest(currentRoom);
